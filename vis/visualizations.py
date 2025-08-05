@@ -5,9 +5,6 @@ import os
 
 def plot_cost_comparison():
     data_path = 'data/outputs/buy_vs_rent_results.csv'
-    if not os.path.exists(data_path):
-        print("Results file not found! Please run your analysis first.")
-        return
 
     df = pd.read_csv(data_path)
     

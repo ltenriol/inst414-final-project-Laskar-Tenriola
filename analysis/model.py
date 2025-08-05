@@ -10,7 +10,7 @@ def forecast(df, value_col, forecast_months=60):
         months_numeric = np.arange(len(group))
         values = group[value_col].values
 
-        #forecast if there is enough data
+        #check to see if there is enough data
         if len(values) > 12:
             coeffs = np.polyfit(months_numeric, values, 1)
             last_month = months_numeric[-1]

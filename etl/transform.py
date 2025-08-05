@@ -58,7 +58,6 @@ def clean_data(mortgage, rent):
     os.makedirs('data/processed', exist_ok=True)
     merged.to_csv('data/processed/cleaned_housing_data.csv', index=False)
 
-    print("Data cleaning and wrangling complete. Saved to data/processed/cleaned_housing_data.csv")
     return merged
 
 if __name__ == "__main__":

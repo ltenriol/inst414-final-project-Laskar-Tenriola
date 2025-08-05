@@ -18,5 +18,6 @@ def extract_data():
             print(f"error: file not found")
     
     return data
+    
 extract_data()
 
