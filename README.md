@@ -41,11 +41,7 @@ The business problem for this project: Is it financially better to buy or rent a
     pip install -r requirements.txt
     ```
 
-## Running the Project
-
-Run the following in the terminal to run all:
-
-1. **ETL - Extract:**  
+4. **Running the Project:**
     ```bash
     python main.py
     ```
