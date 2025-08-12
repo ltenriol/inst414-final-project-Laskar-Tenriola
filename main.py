@@ -1,4 +1,3 @@
-
 def extract():
     import etl.extract
 
