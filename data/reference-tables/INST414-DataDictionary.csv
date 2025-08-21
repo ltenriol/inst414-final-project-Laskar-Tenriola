@@ -1,0 +1,13 @@
+﻿Mortgage Dataset,,
+Attribute,Description,Data Type
+RegionID,Unique ID for the region ,int
+RegionName,Name of the region  ,string
+State,State abbreviation ,string
+YYY-MM,Monthly home mortgage value (USD) ,float
+,,
+Rent Dataset,,
+Attribute,Description,Data Type
+RegionID,Unique ID for the region ,int
+RegionName,Name of the region  ,string
+State,State abbreviation ,string
+YYY-MM,Monthly home mortgage value (USD) ,float

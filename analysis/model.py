@@ -2,35 +2,66 @@ import pandas as pd
 import numpy as np
 import os
 
-#linear regression for forecasting home and rent values
-def forecast(df, value_col, forecast_months=60):
-    forecasts = []
-    for key, group in df.groupby('RegionID'):
-        group = group.sort_values('Month')
-        months_numeric = np.arange(len(group))
-        values = group[value_col].values
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
 
-        #check to see if there is enough data
-        if len(values) > 12:
-            coeffs = np.polyfit(months_numeric, values, 1)
-            last_month = months_numeric[-1]
-            forecast_months_numeric = np.arange(last_month + 1, last_month + forecast_months + 1)
-            forecast_values = np.polyval(coeffs, forecast_months_numeric)
-            for i, fv in enumerate(forecast_values):
-                forecasts.append({
-                    'RegionID': key,
-                    'Month': f'forecast_{i+1}',
-                    value_col: fv
-                })
+
+def forecast(df, value_col, forecast_months=60, degree=1, min_obs=12):
+    forecasts = []
+
+    # ensure month is a datetime column
+    df = df.copy()
+    df['Month'] = pd.to_datetime(df['Month'], errors='coerce')
+
+    # clean each region data
+    for region_id, group in df.groupby('RegionID'):
+        g = group[['Month', value_col]].dropna()
+        g = g[g['Month'].notna()].sort_values('Month').reset_index(drop=True)
+
+        # check to see if there is enough data
+        if len(g) < min_obs:
+            continue
+
+        # creating time index from the months
+        X = np.arange(len(g)).reshape(-1, 1)
+        y = g[value_col].values
+
+        # fit polynomial regression model
+        model = make_pipeline(
+            PolynomialFeatures(degree=degree, include_bias=False),
+            LinearRegression()
+        )
+        model.fit(X, y)
+
+        # future predictions and creation of future month stamps
+        future= np.arange(len(g), len(g) + forecast_months).reshape(-1, 1)
+        y_prediction = model.predict(future)
+
+        # build month stamps 
+        start_month = g['Month'].iloc[-1] + pd.offsets.MonthBegin(1)
+        future_months = pd.date_range(start=start_month, periods=forecast_months, freq='MS')
+
+        # append the forecast results
+        forecasts.extend(
+            {
+                'RegionID': region_id,
+                'Month': m,              
+                value_col: float(v)      
+            }
+            for m, v in zip(future_months, y_prediction)
+        )
+
     return pd.DataFrame(forecasts)
 
 def run_forecast():
     data_path = 'data/processed/cleaned_housing_data.csv'
     df = pd.read_csv(data_path)
 
-    #forecast home values and rent values 
-    home_forecast = forecast(df, value_col='Mortgage', forecast_months=60)
-    rent_forecast = forecast(df, value_col='Rent', forecast_months=60)
+    # forecast home values and rent values 
+    home_forecast = forecast(df, value_col='Mortgage', forecast_months=60, degree=1)
+    rent_forecast = forecast(df, value_col='Rent', forecast_months=60, degree=1)
+
     os.makedirs('data/outputs', exist_ok=True)
     home_forecast.to_csv('data/outputs/home_value_forecast.csv', index=False)
     rent_forecast.to_csv('data/outputs/rent_value_forecast.csv', index=False)
@@ -38,3 +69,38 @@ def run_forecast():
 
 if __name__ == "__main__":
     run_forecast()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

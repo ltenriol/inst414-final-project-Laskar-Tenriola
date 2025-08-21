@@ -54,12 +54,5 @@ def clean_data(mortgage, rent):
     merge_cols = [c for c in ['RegionID', 'Region', 'State', 'City', 'Month'] if c in mortgage_long.columns and c in rent_long.columns]
     merged = pd.merge(mortgage_long, rent_long, on=merge_cols, how='inner')
 
-    #save the cleaned data
-    os.makedirs('data/processed', exist_ok=True)
-    merged.to_csv('data/processed/cleaned_housing_data.csv', index=False)
-
     return merged
 
-if __name__ == "__main__":
-    mortgage, rent = load_data()
-    clean_data(mortgage, rent)
